@@ -242,83 +242,16 @@ _PRMPT	= '>'				; the prompt
 _QMARK	= '?'				; question mark (for input)
 INCMD	= 0x80				; "in command mode" flag
 
-	IFDEF USETTY
-; Select desired baud rate or 0 for original default.
-	IFNDEF BAUD
-BAUD	= 1200
-	ENDIF
-	IF BAUD == 0
-TTY_B1	= 0xC2
-TTY_B2	= 0x00
-TTY_B3	= 0x76
-TTY_B4	= 0x01
-TTY_B5	= 0x01
-TTY_B6	= 0x30
-TTY_B7	= 0x03
-TTY_B8	= 0x5C
-TTY_B9	= 0x01
-	ENDIF
-	IF BAUD == 110
-TTY_B1	= 0x57
-TTY_B2	= 0x04
-TTY_B3	= 0x7E
-TTY_B4	= 0x08
-TTY_B5	= 0x08
-TTY_B6	= 0xFF
-TTY_B7	= 0x17
-TTY_B8	= 0x8A
-TTY_B9	= 0x08
-	ENDIF
-	IF BAUD == 300
-TTY_B1	= 0x76
-TTY_B2	= 0x01
-TTY_B3	= 0xE5
-TTY_B4	= 0x02
-TTY_B5	= 0x06
-TTY_B6	= 0x64
-TTY_B7	= 0x06
-TTY_B8	= 0xF0
-TTY_B9	= 0x02
-	ENDIF
-	IF BAUD == 600
-TTY_B1	= 0xA7
-TTY_B2	= 0x00
-TTY_B3	= 0x45
-TTY_B4	= 0x01
-TTY_B5	= 0x04
-TTY_B6	= 0x25
-TTY_B7	= 0x03
-TTY_B8	= 0x50
-TTY_B9	= 0x01
-	ENDIF
-	IF BAUD == 1200
-TTY_B1	= 0x3D
-TTY_B2	= 0x00
-TTY_B3	= 0x76
-TTY_B4	= 0x00
-TTY_B5	= 0x02
-TTY_B6	= 0x86
-TTY_B7	= 0x01
-TTY_B8	= 0x81
-TTY_B9	= 0x00
-	ENDIF
-	IF BAUD == 2400
-TTY_B1	= 0xBB
-TTY_B2	= 0x00
-TTY_B3	= 0x34
-TTY_B4	= 0x01
-TTY_B5	= 0x01
-TTY_B6	= 0x99
-TTY_B7	= 0x01
-TTY_B8	= 0x44
-TTY_B9	= 0x01
-	ENDIF
-	ENDIF
-
 ; Important bits.
+
 S_FLAG0	= 0x01				; tty "txd" pin in SR
 S_SENSEA = 0x10				; intr pin in SR
 S_SENSEB = 0x20				; tty "rxd" pin in SR
+
+	IFDEF USETTY
+	INCLUDE "TTY_INIT.inc"
+	ENDIF
+
 
 ; Supervisor jumps using P3 offsetting.
 SV_BASE		= BASE+0x0400		; which block is Supervisor at?
@@ -561,81 +494,8 @@ PUTASC:
 	  ENDIF
 	 ENDIF
 
-; FIXME: Former TTY routine, actually switched off
-	IF	0
-	 IFDEF	USETTY
-	  ANI	0x7F			; mask off parity bit
-	  XAE				; save in E
-	  ST	-127(P2)		; store old E in RAM
-	  LDI	TTY_B6			; set delay for start bit
-	  DLY	TTY_B7			;  (TTY_B6=30 and TTY_B7=03)
-	  CSA				; get status
-	  ORI	1			; set start bit (inverted logic)
-	  CAS				; set status
-	  LDI	9			; set bit count
-	  ST	-24(P2)			; store in RAM
-PUTAS1:	  LDI	TTY_B8			; set delay for 1 bit time
-	  DLY	TTY_B9			;  (TTY_B8=5C and TTY_B9=01)
-	  DLD	-24(P2)			; decrement bit count
-	  JZ	PUTAS2
-	  LDE				; prepare next bit
-	  ANI	1
-	  ST	-23(P2)
-	  XAE				; shift data right one bit
-	  RR
-	  XAE
-	  CSA				; set up output bit
-	  ORI	1
-	  XOR	-23(P2)
-	  CAS				; put bit to TTY
-	  JMP	PUTAS1
-PUTAS2:	  CSA				; set stop bit
-	  ANI	0xFE
-	  CAS
-	  LD	-127(P2)
-	  XAE
-	  IFDEF USE_SLOW
-	   XRI	_FF			; if this is not FormFeed
-	   JNZ	PUTAS3			; do short delay
-	   DLY	255			; else longer delay
-	   JMP	PUTAS4
-PUTAS3:	   ANI	0x60			; is it digit or letter ?
-	   JNZ	PUTAS4
-	   DLY	16
-	  ENDIF
-PUTAS4:	  JMP	SV_RTRN(P3)
-	 ENDIF
-	ENDIF
-
 	IFDEF	USETTY
-; NOTE:	Regular tty routine taken from kbplus
-	ST	-127(P2)		; save byte
-	XAE
-	LDI	TTY_B6
-	DLY	TTY_B7
-	CSA				; set output bit to logic 0
-	ORI	S_FLAG0			;  for start bit (note inversion)
-	CAS
-	LDI	9			; initialize bit count
-	ST	-24(P2)
-putc1:	LDI	TTY_B8			; delay 1 bit time
-	DLY	TTY_B9
-	DLD	-24(P2)			; decrement bit count
-	JZ	putc2
-	LDE				; prepare next bit
-	ANI	S_FLAG0			; mask FLAG0 bit
-	ST	-23(P2)
-	XAE				; shift data right 1 bit
-	SR
-	XAE
-	CSA				; set up output bit
-	ORI	S_FLAG0
-	XOR	-23(P2)
-	CAS				; put bit to TTY
-	JMP	putc1
-putc2:	CSA				; set stop bit
-	ANI	~S_FLAG0		; clear FLAG0 bit
-	CAS
+	INCLUDE "TTY_PUTASC.inc"
 	ANI	S_SENSEB		; check for keyboard input
 	JNZ	putc3			; (note that input is not inverted)
 	LDI	(M_BRK-M_BASE)		; 'BREAK'
@@ -663,76 +523,8 @@ GETASC:
 	 ENDIF
 
 ; FIXME: Former TTY routine, actually switched off
-	 IFDEF	USETTY
-	  IF	0
-	  LDI	8			; set bit count
-	  ST	COUNTR(P2)
-GETAS1:	  CSA				; wait for start bit
-	  ANI	0x20
-	  JNZ	GETAS1
-	  LDI	TTY_B1			; delay 1/2 bit time
-	  DLY	TTY_B2			;  (TTY_B1=C2 and TTY_B2=00)
-	  CSA				; is start bit still there?
-	  ANI	S_SENSEB
-	  JNZ	GETAS1			; no
-GETAS2:	  LDI	TTY_B3			; delay bit time
-	  DLY	TTY_B4			;  (TTY_B3=76 and TTY_B4=01)
-	  CSA				; get bit (SENSEB)
-	  ANI	S_SENSEB
-	  JZ	GETAS3
-	  LDI	1
-GETAS3:	  RRL				; rotate into link
-	  XAE
-	  SRL				; shift into character
-	  XAE				; return char to E
-	  DLD	COUNTR(P2)		; decrement bit count
-	  JNZ	GETAS2			; loop until 0
-	  DLY	TTY_B5			; set delay (TTY_B5=01)
-	  LDE				; load character from E
-	  ANI	0x7F			; mask parity bit
-	  XAE
-	  LDE
-	  ANI	0x40			; test for uppercase
-	  JZ	GETAS4
-	  LDE
-	  ANI	0x5F			; convert to uppercase
-	  XAE
-GETAS4:	  LDE
-	  XRI	_CTLC			; test for CONTROL-C
-	  JNZ	GETAS5
-	  LDI	(M_BRK-M_BASE)		; 'BREAK'
-	  JMP	SV_MSGOUT(P3)
-GETAS5:   JMP	SV_RTRN(P3)
-	  ENDIF
-
-; NOTE:	Regular tty routine taken from kbplus
-	LDI	8			; set bit count
-	ST	COUNTR(P2)
-getc1:	CSA				; get status (wait for start bit)
-	ANI	S_SENSEB		; mask SENSEB bit
-	JNZ	getc1			; not set
-	LDI	TTY_B1			; delay 1/2 bit time
-	DLY	TTY_B2
-	CSA				; is start bit still there?
-	ANI	S_SENSEB		; mask SENSEB bit
-	JNZ	getc1			; no
-getc2:	LDI	TTY_B3			; delay bit time
-	DLY	TTY_B4
-	CSA				; get status
-	ANI	S_SENSEB		; mask SENSEB bit
-	JZ	getc3
-	LDI	1			; set "1" bit
-getc3:	RRL				; rotate \0 or \1 into link
-	XAE
-	SRL				; shift into character
-	XAE				; return char to E
-	DLD	COUNTR(P2)		; decrement bit count
-	JNZ	getc2			; loop until 0
-	DLY	TTY_B5
-	LDE				; AC has input character
-	ANI	0x7F			; strip parity bit
-	XAE
-	LDE
+	IFDEF	USETTY
+	INCLUDE "TTY_GETASC.inc"
 	RTRN
 	 ENDIF
 	ENDIF
