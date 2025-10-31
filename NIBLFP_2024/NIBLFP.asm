@@ -33,25 +33,25 @@
 ; AUTHORS:	National Semiconductor, NIBL, 1975
 ;		Erich Küster (ekuester), rewrite and FP, late 1970's-2024
 ;		Fred N. van Kempen (waltje), cleanup-rewrite, 2023,2024
-;		
+;
 ;		Redistribution and  use  in source  and binary forms, with
 ;		or  without modification, are permitted  provided that the
 ;		following conditions are met:
-;	
+;
 ;		1. Redistributions of  source  code must retain the entire
 ;		   above notice, this list of conditions and the following
 ;		   disclaimer.
-;	
+;
 ;		2. Redistributions in binary form must reproduce the above
 ;		   copyright  notice,  this list  of  conditions  and  the
 ;		   following disclaimer in  the documentation and/or other
 ;		   materials provided with the distribution.
-;	
+;
 ;		3. Neither the  name of the copyright holder nor the names
 ;		   of  its  contributors may be used to endorse or promote
 ;		   products  derived from  this  software without specific
 ;		   prior written permission.
-;	
+;
 ; THIS SOFTWARE  IS  PROVIDED BY THE  COPYRIGHT  HOLDERS AND CONTRIBUTORS
 ; "AS IS" AND  ANY EXPRESS  OR  IMPLIED  WARRANTIES,  INCLUDING, BUT  NOT
 ; LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -157,7 +157,7 @@ PGTOPH	= -123				; top of storage in page (H) / memory size (H)
 PGTOPL	= -122				; top of storage in page (L) / memory size (L)
 
 ; -100	SUBSTK:init.H			; grows downwards, contains SPRVSR P3.H,
-; -99	SUBSTK:init.L	
+; -99	SUBSTK:init.L
 ; -98	SUBSTK:top.H			; set to zero byte
 ; -97	SUBSTK:top.L			; set to zero byte
 ; -96	CASS routines
@@ -512,7 +512,7 @@ ENTER:	LDI	H(STKBASE)		; set P1 to variables
 	LDI	1
 	ST	CURPG(P2)		; set current page to first page
 	LDI	0
-	ST	PAGES(P2)		; set available pages to zero	
+	ST	PAGES(P2)		; set available pages to zero
 	LDI	0x70			; set page 7
 	ST	RAMBAS(P2)		; store as first RAMBASE..
 	; NOTE:	P1 low was set to one above
@@ -949,12 +949,12 @@ SPRNUM:	LD	@1(P1)			; get byte from program and increase
 ;*******************************************************
 ;*        Print 16-bit number on STACK -9, -8          *
 ;*         as decimal ASCII-representation.            *
-;*******************************************************;  
+;*******************************************************;
 ;
 PRNUM:	LDI	L(AEXSTK)-6		; reserve six bytes on arithmetics stack
 	ST	AEXOFF(P2)		; save actual AEXSTK.L for later use
 	XPAL	P1
-	ST	-15(P2)			; save P1.low 
+	ST	-15(P2)			; save P1.low
 	LD	STKPHI(P3)
 	XPAH	P1
 	ST	-16(P2)			; save P1.high
@@ -1142,7 +1142,7 @@ DIG21:	ADI	0
 	JMP	PEXP
 DEC:	CALL	BINDEC			; convert binary to decimal digits
 	LD	CHRNUM(P2)		; load digit counter
-	JZ	PFNUMD 
+	JZ	PFNUMD
 PEXP:	XAE				; calculate decimal exponent
 	LDI	'E'
 	ST	@-1(P1)			; store 'E' for exponent
@@ -1592,7 +1592,7 @@ TSTN7:	LD	1(P2)			; load MSB of mantissa
 	JP	TSTN9			; jump if bit6 and bit7 were set
 TSTN8:	LDI	STKMID
 	XPAL	P2
-	ST	AEXOFF(P2)		; save arithmetics stack low	
+	ST	AEXOFF(P2)		; save arithmetics stack low
 	JMP	SPTST3			; go back to I.L.
 VALER1:	JMP	VALER2			; only stepping stone to avoid too far jumps
 TSTN10:	XAE				; save new digit in E
@@ -1737,7 +1737,7 @@ MESG:	ST	MSGOFF(P2)		; store relative offset
 	XAE				; save offset into E
 	LDPI	P1,M_BASE		; set P1 to message base addr
 	LD	@EREG(P1)		; adjust pointer
-	LDE	
+	LDE
 	JP	MESG1			; not error, skip
 	LDI	_QMARK			; print a question mark (error!)
 	IFDEF	SCALLS
@@ -2311,10 +2311,10 @@ NEG:	DO	STACK
 
 ; Handle the PRINT commands.
 ;
-; We use PREXP for both USING/formatted and unformatted printing. 
+; We use PREXP for both USING/formatted and unformatted printing.
 ; Since we moved the number printing out of the ILCALL procedure,
 ; it is now called every time the loop is executed. So number
-; printing only takes place IF a number is found on the STACK. 
+; printing only takes place IF a number is found on the STACK.
 ;
 PRINT:	TSTSTR	PRNT2,T_USING		; handle PR[INT] and USING
 	TSTSTR	SYNTAX,'"'		; do we have a literal?
@@ -2627,7 +2627,7 @@ SNGL:	TSTSTR	SYNTAX,'('
 	TSTSTR	ENDPAR,')'
 RTRN:	ILRTRN
 
-; NOTE:	Handle floating point numbers	
+; NOTE:	Handle floating point numbers
 RFACTR:	TSTNUM	RF1			; number before decimal point
 RNUM:	TSTSTR	RNUM1,'.'		; decimal point
 	TSTNUM	RNUM1			; number after decimal point
@@ -2974,7 +2974,7 @@ CTRL4:	LD	EREG(P1)		; load char under cursor
 ; NOTE:	The following handles some control characters, all others are ignored.
 ;	Control/H = <bs>	delete char and move cursor one to left
 ; ???	Control/I = <ht>	cursor pos one to right
-;	Control/K = <vt>	^Kill, rubout char at cursor pos	
+;	Control/K = <vt>	^Kill, rubout char at cursor pos
 ;	Control/L = <ff>	cursor pos one to the ^Left
 ;	Control/O = <si>	m^Ove right and insert char at cursor pos
 ;	Control/R = <dc2>	cursor pos one to the ^Right
@@ -3063,7 +3063,7 @@ CTRL6:	LD	(P2)			; load input buffer length (max. chars)
 	SCL
 	LDE				; max. number
 	CAD	CHRNUM(P2)		; subtract actual number
-	ST	-22(P2)			; store as temporary counter		
+	ST	-22(P2)			; store as temporary counter
 SHFTR:	LD	@-1(P1)			; decrease and get character
 	ST	1(P1)			; store one position right
 	DLD	-22(P2)
@@ -3162,7 +3162,7 @@ SCAND:	LDI	L(SPRVSR)		; restore P3 to Supervisor
 	LDI	L(STKIBUF)		; load start of input buffer
 	XPAL	P1			; put into P1.L
 	JMP	SV_SPLOAD(P3)
-SCAN2:	LD	@-1(P1)			; decr input buffer back and load byte 
+SCAN2:	LD	@-1(P1)			; decr input buffer back and load byte
 SCAN3:	LDPI	P3,TOKENS		; load P3 with token table
 SCAN4:	LD	@1(P3)			; get token from table, incr P3
 	JZ	SCAN			; end of table
@@ -3597,7 +3597,7 @@ NEXT1:	LD	@1(P1)			; get byte from program and increase
 	JP	NEXT3			; no token, potential variable
 	SCL
 	LD	-1(P1)			; load last byte
-	CAI	T_LET+1			; must be positive if token not allowed		
+	CAI	T_LET+1			; must be positive if token not allowed
 	JP	SYNTX			; tokens beyond LET not allowed
 	ADI	T_LET-127		; restore token without bit7 set
 	XAE				; command/run flag in A, token in E
@@ -3885,7 +3885,7 @@ SPRNUM:	LD	@1(P1)			; get byte from program and increase
 ; Print 16-bit number on STACK -9, -8 as decimal ASCII-representation.
 PRNUM:	LD	AEXOFF(P2)
 	XPAL	P1
-	ST	-15(P2)			; save P1.low 
+	ST	-15(P2)			; save P1.low
 	LD	STKPHI(P3)
 	XPAH	P1
 	ST	-16(P2)			; save P1.high
@@ -3956,7 +3956,7 @@ DIV2:	DLD	-6(P1)			; decrease bit counter
 ; Advantage: Less loops while calculating BUT very gossipy code
 PRNUM:	LD	AEXOFF(P2)
 	XPAL	P1
-	ST	-15(P2)			; save P1.low 
+	ST	-15(P2)			; save P1.low
 	LDI	H(STKBASE)
 	XPAH	P1
 	ST	-16(P2)			; save P1.high
@@ -4002,7 +4002,7 @@ DIV:	CCL				; shift number 1 bit right
 	LD	-4(P1)
 	ADD	-2(P1)
 	ST	-2(P1)
-	ST	-4(P1)			
+	ST	-4(P1)
 ; NOTE:	Shift 4 bits right.
 	LDI	4			; shift 4 bit
 	ST	-6(P1)			; store as bit counter below number
@@ -4024,7 +4024,7 @@ SHFTR4:	CCL				; shift 1 bit right
 	LD	-4(P1)
 	ADD	-2(P1)
 	ST	-2(P1)
-	ST	-4(P1)			
+	ST	-4(P1)
 	LDI	8			; shift 8 bit
 	ST	-6(P1)			; store as bit counter below number
 SHFTR8:	CCL				; shift 1 bit right
@@ -4245,7 +4245,7 @@ LST3:	ORE
 	JZ	LST4	 		; go, print actual line
 	LDI	(M_RDY-M_BASE)		; 'READY'
 	JMP	SV_MSGOUT(P3)
-LST4:	CALL	SPRNUM			; first print line number 
+LST4:	CALL	SPRNUM			; first print line number
 LST5:	LD	@1(P1)			; get byte of actual line and incr
 	JP	LST9			; no token, so go and print char
 ; FIXME: Can we use ext reg instead of chrnum ?
@@ -4599,7 +4599,7 @@ DTA2:	LD	(P1)			; check if we are at end
 	LDI	(M_DATA-M_BASE)		; 'DATA ERROR'
 	JMP	SV_MSGOUT(P3)
 DTA3:	LD	@1(P1)			; get high byte of line number and increase
-	ST	ERRNUMH(P2)		; store number high for possible error message 
+	ST	ERRNUMH(P2)		; store number high for possible error message
 	LD	@2(P1)			; get low byte of line number and incr by 2
 	ST	ERRNUML(P2)		; store number low for possible error message
 DTA4:	LD	@1(P1)			; get byte from program and increase
@@ -5534,7 +5534,7 @@ PRCHAR:	LD	-17(P2)			; load value to be printed
 
 ; Determine first free byte after BASIC program storage on actual page.
 ; Put absolute address on STACK, return actual STACK.L value.
-TOP:	LD	CURPG(P2)		; convert page# into high address byte 
+TOP:	LD	CURPG(P2)		; convert page# into high address byte
 	RR				; rotate right AC (multiply by 16)
 	RR
 	RR
@@ -6239,7 +6239,7 @@ FDIG21:	ADI	0
 	JMP	FEXP
 FDEC:	CALL	BINDEC			; convert binary to decimal
 	LD	CHRNUM(P2)		; load digit counter
-	JZ	FNUMND 
+	JZ	FNUMND
 FEXP:	XAE				; calculate decimal exponent
 	LDI	'E'
 	ST	@-1(P1)			; store 'E' for exponent
@@ -6541,7 +6541,7 @@ LOG21:	OR	2(P1)
 	ST	@-1(P1)
 	LDI	0x80
 	ST	@-1(P1)			; 80 6A 08 66 -> DCM 1.6567626 ( C )
-	CALL	FSUB			; t * t -c 
+	CALL	FSUB			; t * t -c
 	CALL	FDIV			; mb / (t * t - c)
 	LDI	0x40			; load a1 on stack
 	ST	@-1(P1)
@@ -6777,7 +6777,7 @@ FD10:	LD	1(P1)
 	JZ	SV_SPLOAD(P3)
 FD11:	LDI	0xA0
 	XAE
-	LD	3(P1)			
+	LD	3(P1)
 	ST	-1(P1)
 	LD	2(P1)
 	ST	-2(P1)
@@ -6850,7 +6850,7 @@ FD16:	SCL
 FDIV11:	LD	AEXOFF(P2)
 	XPAL	P2
 	LD	@2(P2)			; load MSB of number, advance 2 bytes
-	JNZ	SV_VALERR(P3)		; exponent > 255 not valid	
+	JNZ	SV_VALERR(P3)		; exponent > 255 not valid
 	LD	1(P2)
 	JZ	FDEND
 FDIV12:	SCL
@@ -7140,7 +7140,7 @@ SIN1:	LDI	0xEC
 	LDI	0x64
 	ST	-3(P1)
 	LDI	0x80
-	ST	@-4(P1)			; 80 64 87 EC -> DCM 
+	ST	@-4(P1)			; 80 64 87 EC -> DCM
 	CALL	FDIV
 	LD	(P1)
 	JP	SIN4
@@ -7188,7 +7188,7 @@ SIN6:	LDI	0x37
 	LDI	0x51
 	ST	-3(P1)
 	LDI	0x7C
-	ST	-4(P1)			; 7C 51 65 37 -> DCM 
+	ST	-4(P1)			; 7C 51 65 37 -> DCM
 	LDI	0x73
 	ST	-5(P1)
 	LDI	0x86
@@ -7196,7 +7196,7 @@ SIN6:	LDI	0x37
 	LDI	0xB8
 	ST	-7(P1)
 	LDI	0x78
-	ST	-8(P1)			; 78 B8 86 73 -> DCM 
+	ST	-8(P1)			; 78 B8 86 73 -> DCM
 	LD	3(P1)
 	ST	-9(P1)
 	ST	-13(P1)
@@ -7219,7 +7219,7 @@ SIN6:	LDI	0x37
 	LDI	0xAD
 	ST	-3(P1)
 	LDI	0x7F
-	ST	@-4(P1)			; 7F AD 52 76 -> DCM 
+	ST	@-4(P1)			; 7F AD 52 76 -> DCM
 	CALL	SWPMUL
 	LDI	0xE7
 	ST	-1(P1)
@@ -7228,7 +7228,7 @@ SIN6:	LDI	0x37
 	LDI	0x64
 	ST	-3(P1)
 	LDI	0x80
-	ST	@-4(P1)			; 80 64 87 E7 -> DCM 
+	ST	@-4(P1)			; 80 64 87 E7 -> DCM
 	CALL	SWPMUL
 	CALL	FMUL
 SIN7:	LD	-24(P2)
